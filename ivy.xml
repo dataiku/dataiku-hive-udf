@@ -1,0 +1,34 @@
+<ivy-module version="2.0">
+    <info organisation="com.dataiku" module="dataiku-hive-udf"/>
+
+    <dependencies>
+  <!--      <dependency org="org.apache.hive" name="hive-exec" rev="0.9.0">
+		<exclude org="org.apache.ftpserver" />
+		<exclude org="commons-daemon" />
+		<exclude org="org.xerial.snappy" />
+		<exclude org="org.apache.mina" />
+        <exclude org="com.sun.jersey" />
+        <exclude org="org.codehaus.jettison" />
+        <exclude org="org.jboss.netty" />
+        <exclude org="log4j" />
+        <exclude org="org.apache.maven.scm" />
+        <exclude org="javax.jdo" />
+        <exclude org="asm" />
+        <exclude org="org.eclipse.jdt" />
+	</dependency>-->
+        <dependency org="log4j" name="log4j" rev="1.2.15">
+	          <exclude org="com.sun.jdmk"/>
+	            <exclude org="com.sun.jmx"/>
+                <exclude org="javax.jms"/>
+        </dependency>
+        <dependency org="commons-lang" name="commons-lang" rev="2.5"/>
+        <dependency org="commons-io" name="commons-io" rev="2.1"/>
+        <dependency org="commons-collections" name="commons-collections" rev="3.2.1"/>
+ 	<dependency org="commons-codec" name="commons-codec" rev="1.7" />
+        <dependency org="com.google.code.gson" name="gson" rev="2.2.2"/>
+        <dependency org="com.google.guava" name="guava" rev="13.0.1" />
+        <!-- Tests -->
+        <dependency org="junit" name="junit" rev="4.8.1"/>
+    </dependencies>
+</ivy-module>
+
