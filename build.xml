@@ -30,6 +30,7 @@
     <path id="lib.path.id">
         <fileset dir="${lib.dir}" />
         <fileset dir="${hive.lib.dir}" />
+        <fileset dir="${hadoop.lib.dir}" includes="*jar"/>
     </path>
 
     <target name="compile" depends="resolve">
@@ -40,5 +41,11 @@
     <target name="jar" depends="compile">
       <delete file="${dist.dir}/dataiku-hive-udf.jar" />
       <jar destfile="${dist.dir}/dataiku-hive-udf.jar" basedir="${build.dir}/classes" />
+    </target>
+
+    <target name="clean">
+	<delete dir="${build.dir}" />
+	<delete dir="${dist.dir}" />
+	<delete dir="${lib.dir}" />
     </target>
 </project>
