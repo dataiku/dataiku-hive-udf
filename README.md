@@ -67,10 +67,13 @@ To get the full list of customers for one product, you can use:
 While processing a stream of rows, rank will return the number of times it has previously seen the same value of `in`.
 
 For example, while processing a table:
+   
     table a {
         string data;
     }
+    
 with values:
+
     p1
     p1
     p2
@@ -80,8 +83,11 @@ with values:
     p4
 
 The query:
+
     select data, rank(data) from a;
+
 would return:
+
     p1   0
     p1   1
     p2   0
@@ -107,16 +113,20 @@ output the value of `outColumn` for the first (resp. last) row, once sorted.
 These functions are very useful for processing tables with "updates".
 
 For example:
+
     table user {
         int id;
         int version;
         string email;
         string location;
     }
+
 To get the last recorded location for a given user, you can use:
+
     select last_of_group(location, version) FROM user GROUP BY id;
 
 You can use several first_of_group/last_of_group in the same query:
+
     select last_of_group(location, version), last_of_group(email, version) FROM user GROUP BY id;
 
 
