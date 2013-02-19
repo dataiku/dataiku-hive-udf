@@ -48,8 +48,8 @@ For example, if you have:
 
     table A {
         int product_id;
-	int day;
-	array<string> buying_customers;
+        int day;
+        array<string> buying_customers;
     }
 
 collect_to_array(buying_customers) will therefore produce array<array<string>>
