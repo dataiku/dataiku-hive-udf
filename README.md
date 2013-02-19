@@ -28,7 +28,7 @@ For example
 
     table page_views {
         int visitor_id;
-	string page;
+        string page;
     }
 
 The query:
@@ -57,6 +57,69 @@ collect_to_array(buying_customers) will therefore produce array<array<string>>
 To get the full list of customers for one product, you can use:
 
     SELECT array_join(collect_to_array(buying_customers)) FROM A GROUP BY product_id;
+    
+### Windowing functions
+
+#### Rank
+
+    int rank(string in)
+    
+While processing a stream of rows, rank will return the number of times it has previously seen the same value of `in`.
+
+For example, while processing a table:
+    table a {
+        string data;
+    }
+with values:
+    p1
+    p1
+    p2
+    p2
+    p2
+    p3
+    p4
+
+The query:
+    select data, rank(data) from a;
+would return:
+    p1   0
+    p1   1
+    p2   0
+    p2   1
+    p2   2
+    p3   0
+    p4   0
+    
+Therefore, rank only makes sense on a sorted table.
+
+rank is very useful for sequence analysis
+
+##### first_of_group, last_of_group
+
+This is an aggregation function.
+
+    TYPE1 first_of_group(TYPE1 outColumn, TYPE2 sortColumn)
+    TYPE1 last_of_group(TYPE1 outColumn, TYPE2 sortColumn)
+    
+For each group, these functions will sort the rows of the group by `sortColumn`, and then 
+output the value of `outColumn` for the first (resp. last) row, once sorted.
+
+These functions are very useful for processing tables with "updates".
+
+For example:
+    table user {
+        int id;
+        int version;
+        string email;
+        string location;
+    }
+To get the last recorded location for a given user, you can use:
+    select last_of_group(location, version) FROM user GROUP BY id;
+
+You can use several first_of_group/last_of_group in the same query:
+    select last_of_group(location, version), last_of_group(email, version) FROM user GROUP BY id;
+
+
 
 ## Copyright and license
 
