@@ -1,6 +1,6 @@
 # Dataiku Hive UDFs
 
-This is a collection of UDF for [Apache Hive](http://apache.hive.org).
+This is a collection of UDF and Storage Handlers for [Apache Hive](http://apache.hive.org).
 
 ## Available UDFs
 
@@ -57,6 +57,26 @@ collect_to_array(buying_customers) will therefore produce array<array<string>>
 To get the full list of customers for one product, you can use:
 
     SELECT array_join(collect_to_array(buying_customers)) FROM A GROUP BY product_id;
+
+## Storage Handlers
+
+### XMLHiveStorageHandler
+
+
+XMLHiveStorageHandler creates a table backed by one or multiple XML Files.
+
+In the example below my_dir should contain XML Files contains a <MyTag> tag.
+A Table will be created with one line per tag, with the raw XML content of each tag inside.
+
+    CREATE TABLE my_table (text string)
+    STORED BY 'com.dataiku.hive.storage.XMLHiveStorageHandler'
+    LOCATION '/my_dir'
+    TBLPROPERTIES (
+        "xml.tag"="MyTag"
+    )
+
+Note that the storage handler does not perform any XML entity substitution (such as &gt; or unicode entities)
+
 
 ## Copyright and license
 
