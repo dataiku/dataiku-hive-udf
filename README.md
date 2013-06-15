@@ -151,6 +151,7 @@ A Table will be created with one line per tag, with the raw XML content of each 
 Note that the storage handler does not perform any XML entity substitution (such as &gt; or unicode entities)
 
 
+
 ## Copyright and license
 
 Copyright 2013 Dataiku SAS.
