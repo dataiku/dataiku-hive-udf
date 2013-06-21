@@ -57,7 +57,46 @@ collect_to_array(buying_customers) will therefore produce array<array<string>>
 To get the full list of customers for one product, you can use:
 
     SELECT array_join(collect_to_array(buying_customers)) FROM A GROUP BY product_id;
-    
+
+### Map operations
+
+#### count_to_map
+
+Convert an array<string> to a map<string,int>, with a count of number of elements
+
+
+    count_to_map<["yes", "no", "yes"]>  => {"yes":2,"no":1}
+
+### map_filter_lower_than
+
+Filter a map<string,int>, keep only map entries where value is greater of equals to the provided argument
+
+    map_filter_lower_than({"yes":2, "no":1}, 2) => {"yes":2}
+
+
+### map_filter_top_n
+
+Filter a map<string, int>, keep only the top N map entries according to the value. In case of equality, a random
+selection of the elements is performed
+
+    map_filter_top_n({"yes":2, "no":1, "maybe":2, "surely":5}, 3) => {"surely":5, "maybe":2, "yes":2}
+
+## map_group_sum
+
+Aggregating operation on map<string,int> than performs the unions of keys of the map, and sum the value when a key
+exists in multiples maps
+
+
+    CREATE TABLE docs {
+        docid int;
+        word_count map<string, int>
+    }
+
+    SELECT map_group_sum(word_count) FROM docs; ## Get the global word frequency
+
+
+
+
 ### Windowing functions
 
 #### Rank
@@ -150,8 +189,7 @@ A Table will be created with one line per tag, with the raw XML content of each 
 
 Note that the storage handler does not perform any XML entity substitution (such as &gt; or unicode entities)
 
-
-
+qaa
 ## Copyright and license
 
 Copyright 2013 Dataiku SAS.
