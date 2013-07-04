@@ -80,7 +80,13 @@ public class UDAFMapGroupSum extends AbstractGenericUDAFResolver {
         }
 
         protected void mapAppend(Map<String, Integer> m, Map<Object, Object> from)  {
+            if (from == null) {
+                return;
+            }
             for(Map.Entry<Object, Object> entry : from.entrySet()) {
+                Object okey = entry.getKey();
+                Object ovalue = entry.getValue();
+                if (okey == null || ovalue == null) continue;
                 String key = keyOI.getPrimitiveJavaObject(entry.getKey());
                 Integer value = valueOI.get(entry.getValue());
                 if (m.containsKey(key)) {
