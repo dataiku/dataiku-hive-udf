@@ -22,6 +22,7 @@
 package com.dataiku.hive.storage;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
@@ -30,10 +31,13 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.Seekable;
 import org.apache.hadoop.hive.ql.exec.Utilities;
 import org.apache.hadoop.io.DataOutputBuffer;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.compress.CompressionCodec;
+import org.apache.hadoop.io.compress.CompressionCodecFactory;
 import org.apache.hadoop.mapred.*;
 import sun.nio.cs.ext.MacHebrew;
 
@@ -70,7 +74,7 @@ public class XMLHiveInputFormat extends TextInputFormat {
         private final byte[] endTag;
         private final long start;
         private final long end;
-        private final FSDataInputStream fsin;
+        private final InputStream fsin;
         private final DataOutputBuffer buffer = new DataOutputBuffer();
 
         public XmlRecordReader(FileSplit split, JobConf jobConf) throws IOException {
@@ -96,11 +100,27 @@ public class XMLHiveInputFormat extends TextInputFormat {
             end = start + split.getLength();
             Path file = split.getPath();
             FileSystem fs = file.getFileSystem(jobConf);
-            fsin = fs.open(split.getPath());
-            fsin.seek(start);
-            LOG.info("Initialized XmlRecordReader  with tag " + tagKey + " to " + split.getPath().toString());
+
+
+            CompressionCodecFactory compressionCodecs = new CompressionCodecFactory(jobConf);
+            CompressionCodec codec = compressionCodecs.getCodec(file);
+
+            if (codec != null) {
+                fsin = codec.createInputStream(fs.open(split.getPath()));
+                LOG.info("Initialized XmlRecordReader with codec " + codec.getClass().getName() +  " with tag " + tagKey + " to " + split.getPath().toString() +  " " + start + " " + end );
+            } else {
+                fsin = fs.open(split.getPath());
+                ((FSDataInputStream)fsin).seek(start);
+                LOG.info("Initialized XmlRecordReader with no codec  with tag " + tagKey + " to " + split.getPath().toString() +  " " + start + " " + end );
+
+            }
         }
 
+
+        protected long pos() throws IOException {
+            return ((Seekable) fsin).getPos();
+
+        }
 
         protected boolean readUntilSlashOrOpenTag(LongWritable key, Text value, int b) throws IOException {
             while (true) {
@@ -112,7 +132,7 @@ public class XMLHiveInputFormat extends TextInputFormat {
                     b = fsin.read();
                     writeToBuffer(b);
                     if (b == (int) '>') {
-                        key.set(fsin.getPos());
+                        key.set(pos());
                         value.set(buffer.getData(), 0, buffer.getLength());
                         return true;
                     }
@@ -127,7 +147,7 @@ public class XMLHiveInputFormat extends TextInputFormat {
 
         @Override
         public boolean next(LongWritable key, Text value) throws IOException {
-            if (fsin.getPos() < end) {
+            if (true || pos() < end) { // we do not support split
                 if (readUntilMatch(startTag, false)) {
                     try {
 
@@ -147,7 +167,7 @@ public class XMLHiveInputFormat extends TextInputFormat {
 
                         // Read until match tag...
                         if (readUntilMatch(endTag, true)) {
-                            key.set(fsin.getPos());
+                            key.set(pos());
                             value.set(buffer.getData(), 0, buffer.getLength());
 
                             //String s = value.toString();
@@ -160,6 +180,8 @@ public class XMLHiveInputFormat extends TextInputFormat {
                     }
                 }
             }
+            LOG.info("No Match startTag");
+
             return false;
         }
 
@@ -175,7 +197,7 @@ public class XMLHiveInputFormat extends TextInputFormat {
 
         @Override
         public long getPos() throws IOException {
-            return fsin.getPos();
+            return pos();
         }
 
         @Override
@@ -185,7 +207,7 @@ public class XMLHiveInputFormat extends TextInputFormat {
 
         @Override
         public float getProgress() throws IOException {
-            return (fsin.getPos() - start) / (float) (end - start);
+            return (pos() - start) / (float) (end - start);
         }
 
         private void writeToBuffer(int b) throws IOException {
@@ -213,7 +235,7 @@ public class XMLHiveInputFormat extends TextInputFormat {
                     if (i >= match.length) return true;
                 } else i = 0;
                 // see if we've passed the stop point:
-                if (!withinBlock && i == 0 && fsin.getPos() >= end) return false;
+                // if (!withinBlock && i == 0  && pos() >= end) return false; // we do not support split
             }
         }
     }
