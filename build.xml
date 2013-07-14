@@ -33,7 +33,7 @@
 
     <target name="compile" depends="resolve">
         <mkdir dir="${build.dir}/classes" />
-	    <javac srcdir="${src.dir}" destdir="${build.dir}/classes" classpathref="lib.path.id" />
+	    <javac source="1.6" debug="true" target="1.6" srcdir="${src.dir}" destdir="${build.dir}/classes" classpathref="lib.path.id" />
     </target>
 
     <target name="jar" depends="compile">
