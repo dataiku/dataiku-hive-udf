@@ -24,6 +24,8 @@
         <dependency org="org.apache.hadoop" name="hadoop-core" rev="0.20.2"/>
         <dependency org="org.apache.hive" name="hive-serde" rev="0.9.0" />
         <dependency org="org.apache.hive" name="hive-exec" rev="0.9.0" />
+        <dependency org="javax.jdo" name="jdo2-api" rev="2.3-eb" force="true"/>
+
 
         <!--<dependency org="commons-lang" name="commons-lang" rev="2.5"/>
         <dependency org="commons-io" name="commons-io" rev="2.1"/>

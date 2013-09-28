@@ -1,7 +1,7 @@
 <project xmlns:ivy="antlib:org.apache.ivy.ant" name="dataiku-hive-udf" default="jar">
     <property file="build.properties" />
 
-    <property name="ivy.install.version" value="2.0.0-beta1"/>
+    <property name="ivy.install.version" value="2.3.0"/>
     <property name="ivy.jar.dir" value="${basedir}/ivy"/>
     <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar"/>
 
