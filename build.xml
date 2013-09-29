@@ -24,7 +24,7 @@
     </target>
 
     <target name="resolve"  unless="skip.resolve" depends="install-ivy" description="--> retrieve dependencies with ivy">
-        <ivy:retrieve pattern="${lib.dir}/[conf]/[artifact]-[type]-[revision].[ext]" />
+        <ivy:retrieve pattern="${lib.dir}/[conf]/[artifact]-[type]-[revision].[ext]" type="jar" />
     </target>
 
     <path id="lib.path.id">
