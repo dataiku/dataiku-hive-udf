@@ -67,6 +67,22 @@ Convert an array<string> to a map<string,int>, with a count of number of element
 
     count_to_map<["yes", "no", "yes"]>  => {"yes":2,"no":1}
 
+### count_distinct_map
+
+For a group, generate a map with key from a secondary column counting the distinct values from keys from a third one. 
+
+
+    select query, count_distinct_map(country, userid) as nusers_per_country FROM queries GROUP BY query; 
+
+    query     country    userid
+    FOO    FR    X
+    FOO    FR    X
+    FOO    FR    Y
+    FOO    EN    Z 
+
+    =>  FOO,  {"FR":2, EN:1}
+
+
 ### map_filter_lower_than
 
 Filter a map<string,int>, keep only map entries where value is greater of equals to the provided argument
