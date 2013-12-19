@@ -96,7 +96,7 @@ public class UDAFCountDistinctToMap extends AbstractGenericUDAFResolver {
                 valueOutputTypeOI = (AbstractPrimitiveWritableObjectInspector) valueListInputTypeOI.getListElementObjectInspector();
                 valueListOutputTypeOI = ObjectInspectorFactory.getStandardListObjectInspector(valueOutputTypeOI);
                 intermediateMapOutputTypeOI = ObjectInspectorFactory.getStandardMapObjectInspector(keyOutputTypeOI, valueListOutputTypeOI);
-                finalMapTypeOI = ObjectInspectorFactory.getStandardMapObjectInspector(keyOutputTypeOI, PrimitiveObjectInspectorFactory.javaLongObjectInspector);
+                finalMapTypeOI = ObjectInspectorFactory.getStandardMapObjectInspector(keyOutputTypeOI, PrimitiveObjectInspectorFactory.javaIntObjectInspector);
                 return finalMapTypeOI;
             } else {
                 throw new IllegalArgumentException("Invalid mode");
@@ -152,10 +152,10 @@ public class UDAFCountDistinctToMap extends AbstractGenericUDAFResolver {
 
             protected Object terminate() {
                 Map<Object,ArrayList<Object>> map = content;
-                Map<Object, Long> mapFinal = new HashMap<Object, Long>();
+                Map<Object, Integer> mapFinal = new HashMap<Object, Integer>();
 
                 for(Map.Entry<Object, ArrayList<Object>> entry : content.entrySet()) {
-                    mapFinal.put(entry.getKey(), Long.valueOf(entry.getValue().size()));
+                    mapFinal.put(entry.getKey(), Integer.valueOf(entry.getValue().size()));
                 }
                 return mapFinal;
             }
