@@ -37,6 +37,7 @@
     </target>
 
     <target name="jar" depends="compile">
+      <copy file="hive-init.hql" todir="${dist.dir}" /> 
       <delete file="${dist.dir}/dataiku-hive-udf.jar" />
       <jar destfile="${dist.dir}/dataiku-hive-udf.jar" basedir="${build.dir}/classes" />
     </target>
