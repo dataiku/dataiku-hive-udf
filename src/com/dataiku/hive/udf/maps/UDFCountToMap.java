@@ -13,6 +13,9 @@ public class UDFCountToMap extends UDF {
             return null;
         }
         for(String s : a) {
+            if (s == null) {
+                continue;
+            }
             if (map.containsKey(s)) {
                 map.put(s, map.get(s) + 1);
             } else {

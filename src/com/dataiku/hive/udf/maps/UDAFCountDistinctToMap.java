@@ -115,6 +115,9 @@ public class UDAFCountDistinctToMap extends AbstractGenericUDAFResolver {
             }
 
             protected void addEntry(Object k, Object v) {
+                if (v == null) {
+                    return;
+                }
 
                 ArrayList<Object> vv = content.get(k);
                 if (vv == null) {
