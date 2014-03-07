@@ -37,7 +37,7 @@
         <dependency org="commons-collections" name="commons-collections" rev="3.2.1"/>-->
  	<!--<dependency org="commons-codec" name="commons-codec" rev="1.7" />-->
         <dependency org="com.google.code.gson" name="gson" rev="2.2.2"/>
-        <dependency org="com.google.guava" name="guava" rev="13.0.1" />
+        <dependency org="com.google.guava" name="guava" rev="16.0.1" />
         <!-- Tests -->
         <dependency org="junit" name="junit" rev="4.11">
         </dependency>
