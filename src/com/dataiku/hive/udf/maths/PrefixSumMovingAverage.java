@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
 import org.apache.hadoop.hive.serde2.io.DoubleWritable;
+import org.yecht.Data;
 
 public class PrefixSumMovingAverage {
     static class PrefixSumEntry implements Comparable
@@ -37,19 +38,22 @@ public class PrefixSumMovingAverage {
     //class variables
     private int windowSize;
     private double diviseur;
+    private int position;
 
     private ArrayList<PrefixSumEntry> entries;
 
     public PrefixSumMovingAverage()
     {
         windowSize = 0;
-        diviseur = 0;
+        diviseur = 0.0;
+        position = 0;
     }
 
     public void reset()
     {
         windowSize = 0;
         diviseur = 0.0;
+        position = 0;
         entries = null;
     }
 
@@ -64,16 +68,22 @@ public class PrefixSumMovingAverage {
      * @param window_size Size of the window for moving average
      *        d is the divisor of the exponential smoothing.
      */
-    public void allocate(int window_size, double d) {
+    public void allocate(int window_size, double d, int p) {
 
         windowSize = window_size;
         diviseur = d;
         entries = new ArrayList<PrefixSumEntry>();
+        position = p;
     }
 
     public double getDiviseur() {
         return diviseur;
     }
+
+    public double getPosition() {
+        return position;
+    }
+
 
     @SuppressWarnings("unchecked")
     public void merge(List<DoubleWritable> other)
@@ -88,14 +98,15 @@ public class PrefixSumMovingAverage {
         {
 
             windowSize = (int)other.get(0).get();
-            diviseur = (int)other.get(1).get();
+            diviseur = (double)other.get(1).get();
+            position = (int)other.get(2).get();
 
 
 
 
             entries = new ArrayList<PrefixSumEntry>();
             // we're serialized as period, value, period, value
-            for (int i = 2; i < other.size(); i+=2)
+            for (int i = 3; i < other.size(); i+=2)
             {
                 PrefixSumEntry e = new PrefixSumEntry();
                 e.period = (int)other.get(i).get();
@@ -108,7 +119,7 @@ public class PrefixSumMovingAverage {
         else
         {
             // we're serialized as period, value, period, value
-            for (int i = 2; i < other.size(); i+=2)
+            for (int i = 3; i < other.size(); i+=2)
             {
                 PrefixSumEntry e = new PrefixSumEntry();
                 e.period = (int)other.get(i).get();
@@ -119,6 +130,9 @@ public class PrefixSumMovingAverage {
 
         // sort and recompute
         Collections.sort(entries);
+
+        // Compute the list of ponderation coeff for the moving average.
+
 
         // Compute the list of ponderation coeff for the moving average.
 
@@ -134,31 +148,49 @@ public class PrefixSumMovingAverage {
 
         // now do the subsequence totals and moving averages
 
-        for(int i = entries.size()-1; i < entries.size(); i++)
+        int lastEntry = entries.size()-1;
+
+        double prefixSum = 0;
+
+        int variationPos = 0;
+        //System.out.println("beginning for");
+        for(int j = 0; j < windowSize; j++)
         {
+            // my last entries:
+            if(lastEntry-variationPos>=0){
+                PrefixSumEntry thisEntry = entries.get(lastEntry-variationPos);
 
-            double prefixSum = 0;
+                while (thisEntry.period>(getPosition()-j)){
+                    variationPos+=1;
+                    thisEntry = entries.get(lastEntry-variationPos);
+                    //System.out.println(String.valueOf(thisEntry.period));
+                };
 
-            for(int j = 0; j < windowSize; j++)
-            {
-                if (i-j>=0){
-                    PrefixSumEntry thisEntry = entries.get(i-j);
+                //System.out.println(String.valueOf(thisEntry.period) + " " + String.valueOf(thisEntry.value) +" "+ String.valueOf(variationPos));
+                //System.out.println("            test:");
+                //System.out.println("               "+ String.valueOf(thisEntry.period) + " == " + String.valueOf(getPosition()) +" - "+ String.valueOf(j));
+                if (thisEntry.period==(getPosition()-j)){
                     prefixSum += thisEntry.value * listCoeff[j];
+                    variationPos+=1;
+                }
+                else {
+                    prefixSum += 0 * listCoeff[j];
 
                 }
-                else{
-                    PrefixSumEntry thisEntry = entries.get(i);
-                    prefixSum += thisEntry.value * listCoeff[j];
-                }
-
             }
-
-            double movingAverage;
-            PrefixSumEntry thisEntry = entries.get(i);
-            movingAverage = prefixSum/subdenom; //Moving average is computed here!
-            thisEntry.movingAverage = movingAverage;
+            else {
+                    prefixSum += 0 * listCoeff[j];
+                }
 
         }
+
+        double movingAverage;
+        PrefixSumEntry thisEntry = entries.get(lastEntry);
+        movingAverage = prefixSum/subdenom; //Moving average is computed here!
+        //System.out.println("result:"+String.valueOf(movingAverage));
+        thisEntry.movingAverage = movingAverage;
+
+
 
     }
 
@@ -197,45 +229,6 @@ public class PrefixSumMovingAverage {
         // update the table
         // prefixSums first
 
-        // Compute the list of ponderation coeff for the moving average.
-
-        double[] listCoeff = new double[windowSize];
-        double subdenom = 0.0;
-        double coeffPond = 0.0;
-
-        for (int i=1; i<=windowSize; i++){
-            coeffPond = 1/Math.pow(this.getDiviseur(),i);
-            listCoeff[i-1]=coeffPond;
-            subdenom += coeffPond;
-        }
-
-        // now do the subsequence totals and moving averages
-
-        for(int i = entries.size()-1; i < entries.size(); i++)
-        {
-
-            double prefixSum = 0;
-
-            for(int j = 0; j < windowSize; j++)
-            {
-                if (i-j>=0){
-                    PrefixSumEntry thisEntry = entries.get(i-j);
-                    prefixSum += thisEntry.value * listCoeff[j];
-
-                }
-                else{
-                    PrefixSumEntry thisEntry = entries.get(i);
-                    prefixSum += thisEntry.value * listCoeff[j];
-                }
-
-            }
-
-            double movingAverage;
-            PrefixSumEntry thisEntry = entries.get(i);
-            movingAverage = prefixSum/subdenom; //Moving average is computed here!
-            thisEntry.movingAverage = movingAverage;
-
-        }
     }
 
     public ArrayList<DoubleWritable> serialize()
@@ -244,6 +237,7 @@ public class PrefixSumMovingAverage {
 
         result.add(new DoubleWritable(windowSize));
         result.add(new DoubleWritable(diviseur));
+        result.add(new DoubleWritable(position));
 
         if (entries != null)
         {

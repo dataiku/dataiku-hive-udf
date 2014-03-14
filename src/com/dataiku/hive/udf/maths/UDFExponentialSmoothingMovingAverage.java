@@ -41,11 +41,11 @@ public class UDFExponentialSmoothingMovingAverage extends AbstractGenericUDAFRes
     @Override
     public GenericUDAFEvaluator getEvaluator(TypeInfo[] parameters) throws SemanticException {
 
-        System.out.println("check getEvaluator in");
+        //System.out.println("check getEvaluator in");
 
         //We need exactly three parameters
-        if (parameters.length != 4) {
-            throw new UDFArgumentTypeException(parameters.length - 1, "Moving Average requires 4 parameters");
+        if (parameters.length != 5) {
+            throw new UDFArgumentTypeException(parameters.length - 1, "Moving Average requires 5 parameters");
         }
 
         //check the first parameter to make sure they type is numeric
@@ -95,28 +95,41 @@ public class UDFExponentialSmoothingMovingAverage extends AbstractGenericUDAFRes
         // ensure that the window size is an integer
         if (parameters[2].getCategory() != ObjectInspector.Category.PRIMITIVE)
         {
-            throw new UDFArgumentTypeException(1, "Only primitive integer types are accepted by moving_avg.");
+            throw new UDFArgumentTypeException(1, "ensure that the window size is an integer");
         }
 
         if (((PrimitiveTypeInfo) parameters[2]).getPrimitiveCategory() !=
                 PrimitiveObjectInspector.PrimitiveCategory.INT)
         {
-            throw new UDFArgumentTypeException(1, "Only primitive integer types are accepted by moving_avg");
+            throw new UDFArgumentTypeException(1, "ensure that the window size is an integer");
         }
 
 
         // ensure that the diviseur is a double
         if (parameters[3].getCategory() != ObjectInspector.Category.PRIMITIVE)
         {
-            throw new UDFArgumentTypeException(1, "Only primitive integer types are accepted by moving_avg.");
+            throw new UDFArgumentTypeException(1, "ensure that the diviseur is a double");
         }
 
         if (((PrimitiveTypeInfo) parameters[3]).getPrimitiveCategory() !=
                 PrimitiveObjectInspector.PrimitiveCategory.DOUBLE)
         {
-            throw new UDFArgumentTypeException(1, "Only primitive integer types are accepted by moving_avg");
+            throw new UDFArgumentTypeException(1, "ensure that the diviseur is a double");
         }
-        System.out.println("check getEvaluator out");
+
+        // ensure that the position is a int.
+        if (parameters[4].getCategory() != ObjectInspector.Category.PRIMITIVE)
+        {
+            throw new UDFArgumentTypeException(1, "ensure that the position is a int.");
+        }
+
+        if (((PrimitiveTypeInfo) parameters[4]).getPrimitiveCategory() !=
+                PrimitiveObjectInspector.PrimitiveCategory.INT)
+        {
+            throw new UDFArgumentTypeException(1, "ensure that the position is a int.");
+        }
+
+        //System.out.println("check getEvaluator out");
 
         return new GenericUDAFMovingAverageEvaluator();
     }
@@ -128,6 +141,7 @@ public class UDFExponentialSmoothingMovingAverage extends AbstractGenericUDAFRes
         private PrimitiveObjectInspector inputOI;
         private PrimitiveObjectInspector windowSizeOI;
         private PrimitiveObjectInspector diviseurOI;
+        private PrimitiveObjectInspector positionOI;
 
         // input inspectors for PARTIAL2 and FINAL
         // list for MAs and one for residuals
@@ -141,11 +155,12 @@ public class UDFExponentialSmoothingMovingAverage extends AbstractGenericUDAFRes
             // initialize input inspectors
             if (m == Mode.PARTIAL1 || m == Mode.COMPLETE)
             {
-                assert(parameters.length == 4);
+                assert(parameters.length == 5);
                 periodOI = (PrimitiveObjectInspector) parameters[0];
                 inputOI = (PrimitiveObjectInspector) parameters[1];
                 windowSizeOI = (PrimitiveObjectInspector) parameters[2];
                 diviseurOI = (PrimitiveObjectInspector) parameters[3];
+                positionOI = (PrimitiveObjectInspector) parameters[4];
 
 
             }
@@ -214,9 +229,9 @@ public class UDFExponentialSmoothingMovingAverage extends AbstractGenericUDAFRes
         @Override
         public void iterate(AggregationBuffer agg, Object[] parameters) throws HiveException {
 
-            assert (parameters.length == 4);
+            assert (parameters.length == 5);
 
-            if (parameters[0] == null || parameters[1] == null || parameters[2] == null || parameters[3] == null)
+            if (parameters[0] == null || parameters[1] == null || parameters[2] == null || parameters[3] == null || parameters[4] == null)
             {
                 return;
             }
@@ -229,13 +244,13 @@ public class UDFExponentialSmoothingMovingAverage extends AbstractGenericUDAFRes
             {
                 int windowSize = PrimitiveObjectInspectorUtils.getInt(parameters[2], windowSizeOI);
                 double diviseur = PrimitiveObjectInspectorUtils.getDouble(parameters[3], diviseurOI);
-                System.out.println(diviseur);
+                int position =  PrimitiveObjectInspectorUtils.getInt(parameters[4], positionOI);
 
                 if (windowSize < 1)
                 {
                     throw new HiveException(getClass().getSimpleName() + " needs a window size >= 1");
                 }
-                myagg.prefixSum.allocate(windowSize, diviseur);
+                myagg.prefixSum.allocate(windowSize, diviseur, position);
             }
 
             //Add the current data point and compute the average
