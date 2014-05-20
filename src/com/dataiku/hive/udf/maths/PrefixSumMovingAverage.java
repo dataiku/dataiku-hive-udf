@@ -10,11 +10,11 @@ package com.dataiku.hive.udf.maths;
  */
 
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Collections;
 import org.apache.hadoop.hive.serde2.io.DoubleWritable;
-import org.yecht.Data;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class PrefixSumMovingAverage {
     static class PrefixSumEntry implements Comparable
@@ -136,61 +136,39 @@ public class PrefixSumMovingAverage {
 
         // Compute the list of ponderation coeff for the moving average.
 
-        double[] listCoeff = new double[windowSize];
         double subdenom = 0.0;
-        double coeffPond = 0.0;
-
-        for (int i=1; i<=windowSize; i++){
-            coeffPond = 1/Math.pow(this.getDiviseur(),i);
-            listCoeff[i-1]=coeffPond;
-            subdenom += coeffPond;
-        }
-
-        // now do the subsequence totals and moving averages
+        double coeffPond;
 
         int lastEntry = entries.size()-1;
-
         double prefixSum = 0;
-
         int variationPos = 0;
-        //System.out.println("beginning for");
-        for(int j = 0; j < windowSize; j++)
-        {
-            // my last entries:
+
+        PrefixSumEntry thisEntry = entries.get(lastEntry-variationPos);
+
+        while (thisEntry.period>(getPosition())){
+            variationPos+=1;
+            thisEntry = entries.get(lastEntry-variationPos);
+
+        };
+
+        for (int i=0; i<windowSize; i++){
+            coeffPond = 1/Math.pow(this.getDiviseur(),i+1);
+            prefixSum += thisEntry.value * coeffPond;
+
+            subdenom += coeffPond;
+            variationPos+=1;
             if(lastEntry-variationPos>=0){
-                PrefixSumEntry thisEntry = entries.get(lastEntry-variationPos);
-
-                while (thisEntry.period>(getPosition()-j)){
-                    variationPos+=1;
-                    thisEntry = entries.get(lastEntry-variationPos);
-                    //System.out.println(String.valueOf(thisEntry.period));
-                };
-
-                //System.out.println(String.valueOf(thisEntry.period) + " " + String.valueOf(thisEntry.value) +" "+ String.valueOf(variationPos));
-                //System.out.println("            test:");
-                //System.out.println("               "+ String.valueOf(thisEntry.period) + " == " + String.valueOf(getPosition()) +" - "+ String.valueOf(j));
-                if (thisEntry.period==(getPosition()-j)){
-                    prefixSum += thisEntry.value * listCoeff[j];
-                    variationPos+=1;
-                }
-                else {
-                    prefixSum += 0 * listCoeff[j];
-
-                }
+                thisEntry = entries.get(lastEntry-variationPos);
             }
-            else {
-                    prefixSum += 0 * listCoeff[j];
-                }
-
+            else{
+                break;
+            }
         }
 
-        double movingAverage;
-        PrefixSumEntry thisEntry = entries.get(lastEntry);
-        movingAverage = prefixSum/subdenom; //Moving average is computed here!
-        //System.out.println("result:"+String.valueOf(movingAverage));
-        thisEntry.movingAverage = movingAverage;
+        double movingAverage = prefixSum/subdenom; //Moving average is computed here!
 
-
+        PrefixSumEntry Entry = entries.get(lastEntry);
+        Entry.movingAverage = movingAverage;
 
     }
 
@@ -228,7 +206,6 @@ public class PrefixSumMovingAverage {
         Collections.sort(entries);
         // update the table
         // prefixSums first
-
     }
 
     public ArrayList<DoubleWritable> serialize()
