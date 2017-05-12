@@ -122,7 +122,6 @@ public class UDAFMapGroupSum2 extends AbstractGenericUDAFResolver {
                 HiveChar oKey = entry.getKey();
                 HiveDecimal oValue = entry.getValue();
 
-//TODO: removethis
                 oKey = new HiveChar(oKey.toString().trim(), 3);
 
                 result.put(oKey, oValue);
