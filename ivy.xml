@@ -16,20 +16,22 @@
         <exclude org="asm" />
         <exclude org="org.eclipse.jdt" />
 	</dependency>-->
+        <dependency org="com.google.code.gson" name="gson" rev="2.2.2"/>
+        <dependency org="com.google.guava" name="guava" rev="16.0.1" />
         <dependency org="log4j" name="log4j" rev="1.2.15" force="true">
 	          <exclude org="com.sun.jdmk"/>
 	            <exclude org="com.sun.jmx"/>
                 <exclude org="javax.jms"/>
         </dependency>
         <dependency org="org.apache.hadoop" name="hadoop-core" rev="0.20.2"/>
-        <dependency org="org.apache.hive" name="hive-serde" rev="0.10.0" >
+        <dependency org="org.apache.hive" name="hive-serde" rev="1.2.1" >
                         <exclude org="commons-daemon" />
         </dependency>
-        <dependency org="org.apache.hive" name="hive-exec" rev="0.10.0" >
-   <exclude org="commons-daemon" />
-        </dependency>
+        <!-- <dependency org="org.apache.hive" name="hive-exec" rev="0.10.0" > -->
+   <!-- <exclude org="commons-daemon" /> -->
+        <!-- </dependency> -->
         <dependency org="javax.jdo" name="jdo2-api" rev="2.3-eb" force="true"/>
-        <dependency org="org.jboss.netty" name="netty" rev="3.2.9" force="true" />
+        <!-- <dependency org="org.jboss.netty" name="netty" rev="3.2.9" force="true" /> -->
 <!--<dependency org="commons-daemon" name="commons-daemon" rev="1.0.15" force="true"/>-->            
 
         <!--<dependency org="commons-lang" name="commons-lang" rev="2.5"/>
