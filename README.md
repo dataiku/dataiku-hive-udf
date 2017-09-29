@@ -103,12 +103,25 @@ Aggregating operation on map<string,int> than performs the unions of keys of the
 exists in multiples maps
 
 
-    CREATE TABLE docs {
+    CREATE TABLE docs (
         docid int;
         word_count map<string, int>
-    }
+    )
 
     SELECT map_group_sum(word_count) FROM docs; ## Get the global word frequency
+
+## map_group_sum2
+
+Aggregating operation on map<char,double> than performs the unions of keys of the map, and sum the value when a key
+exists in multiples maps
+
+
+    CREATE TABLE docs (
+        docid int;
+        commission_amounts map<char(3), double>
+    )
+
+    SELECT map_group_sum2(commission_amounts) FROM docs; ## Get the total commissions
 
 ### Maths
 
