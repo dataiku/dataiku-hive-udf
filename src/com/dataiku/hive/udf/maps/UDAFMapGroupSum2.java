@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Group a set of map and sum identical double keys
+ * Group a set of map (char, double) and sum double values for identical double keys and output result as a map (char, double)
  */
 public class UDAFMapGroupSum2 extends AbstractGenericUDAFResolver {
     @Override
@@ -41,7 +41,6 @@ public class UDAFMapGroupSum2 extends AbstractGenericUDAFResolver {
         private MapObjectInspector originalDataOI;
         private HiveDecimalObjectInspector valueOI;
         private HiveCharObjectInspector keyOI;
-
 
         @Override
         public ObjectInspector init(Mode m, ObjectInspector[] parameters) throws HiveException {
