@@ -232,7 +232,18 @@ A Table will be created with one line per tag, with the raw XML content of each 
 
 Note that the storage handler does not perform any XML entity substitution (such as &gt; or unicode entities)
 
-qaa
+## Contributing
+
+#### Set up a docker container with ivy
+`docker run -it -v /path/to/dataiku-hive-udf/:/dataiku fogartyp/ant-ivy /bin/bash`
+
+#### Building the jar
+`cd /dataiku/`
+
+`ant`
+
+The jar will be placed in the `dist` folder.
+
 ## Copyright and license
 
 Copyright 2013 Dataiku SAS.

@@ -29,12 +29,13 @@
    <exclude org="commons-daemon" />
         </dependency>
         <dependency org="javax.jdo" name="jdo2-api" rev="2.3-eb" force="true"/>
-        <dependency org="org.jboss.netty" name="netty" rev="3.2.9" force="true" />
-<!--<dependency org="commons-daemon" name="commons-daemon" rev="1.0.15" force="true"/>-->            
+        <dependency org="org.jboss.netty" name="netty" rev="3.2.9.Final" force="true" />
+<!--<dependency org="commons-daemon" name="commons-daemon" rev="1.0.15" force="true"/>-->
 
         <!--<dependency org="commons-lang" name="commons-lang" rev="2.5"/>
         <dependency org="commons-io" name="commons-io" rev="2.1"/>
         <dependency org="commons-collections" name="commons-collections" rev="3.2.1"/>-->
+        <dependency org="com.google.collections" name="google-collections" rev="1.0-rc2"/>
  	<!--<dependency org="commons-codec" name="commons-codec" rev="1.7" />-->
         <dependency org="com.google.code.gson" name="gson" rev="2.2.2"/>
         <dependency org="com.google.guava" name="guava" rev="16.0.1" />
